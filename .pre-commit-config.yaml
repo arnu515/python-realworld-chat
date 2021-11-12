@@ -35,7 +35,6 @@ repos:
 
       # configs
       - id: check-json
-      - id: pretty-format-json
       - id: check-toml
       - id: check-xml
       - id: check-yaml
