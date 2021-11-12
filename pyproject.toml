@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "realworld-chat"
+version = "0.1.0"
+description = ""
+authors = ["arnu515 <arnu5152@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.70.0"
+prisma = "^0.3.0"
+uvicorn = {extras = ["standard"], version = "^0.15.0"}
+python-dotenv = "^0.19.2"
+donttrust = "^0.1.4"
+invoke = "^1.6.0"
+
+[tool.poetry.dev-dependencies]
+black = "^21.10b0"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+mypy = "^0.910"
+pre-commit = "^2.15.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+include = ".pyi?$"
+exclude = """
+(
+  /(
+    | .git
+    | .mypy_cache
+    | build
+    | dist
+  )/
+)
+"""
+
+[tool.isort]
+profile = "black"
+float_to_top = true
