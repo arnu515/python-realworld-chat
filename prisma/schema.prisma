@@ -17,7 +17,7 @@ model User {
   profile      Profile?
   provider     String?  @db.VarChar(255)
   providerId   String?  @db.VarChar(255)
-  providerData String?  @db.Text
+  providerData Json?    @db.Json
 }
 
 model Profile {
