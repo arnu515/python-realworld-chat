@@ -1,11 +1,17 @@
+from json import loads
+
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 
-from src.lib.auth import providers, util
+from src.lib.auth import password, providers, util
 from src.lib.db import db
 from src.lib.session import Session
 
 router = APIRouter(prefix="/api/auth")
+
+
+router.add_api_route("/login", password.login_handler, methods=["POST"])
+router.add_api_route("/register", password.register_handler, methods=["POST"])
 
 
 # Ported from my website's source code
@@ -58,7 +64,7 @@ async def get_logged_in_user(session: Session = Depends()) -> JSONResponse:
         session.delete("logged_in")
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    return JSONResponse(dict(user=user))
+    return JSONResponse(dict(user=loads(user.json())))
 
 
 @router.get("/{provider}")
