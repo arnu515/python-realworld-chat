@@ -12,10 +12,11 @@ uvicorn = {extras = ["standard"], version = "^0.15.0"}
 python-dotenv = "^0.19.2"
 donttrust = "^0.1.4"
 invoke = "^1.6.0"
-redis = "^3.5.3"
+redis = "^4.0.1"
 types-redis = "^3.5.16"
 nanoid = "^2.0.0"
 requests = "^2.26.0"
+hiredis = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.10b0"
