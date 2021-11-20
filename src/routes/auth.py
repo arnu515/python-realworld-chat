@@ -1,6 +1,6 @@
 from json import loads
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response
+from fastapi import APIRouter, HTTPException, Path, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from src.lib.auth import password, providers, util
@@ -17,9 +17,7 @@ router.add_api_route("/register", password.register_handler, methods=["POST"])
 # Ported from my website's source code
 # https://github.com/arnu515/arnu515/blob/master/pages/api/auth/%5Bprovider%5D.ts
 @router.get("/cb")
-async def auth_callback(
-    request: Request, session: Session = Depends()
-) -> RedirectResponse:
+async def auth_callback(request: Request) -> RedirectResponse:
     code = request.query_params.get("code")
     state = request.query_params.get("state")
 
@@ -43,13 +41,15 @@ async def auth_callback(
             data=dict(id=user.id, name=user.email.split("@")[0])  # type: ignore
         )
 
+    session: Session = request.state.session
     session.set("user_id", user.id)
     session.set("logged_in", True)
     return RedirectResponse(url="/")
 
 
 @router.get("/me")
-async def get_logged_in_user(session: Session = Depends()) -> JSONResponse:
+async def get_logged_in_user(request: Request) -> JSONResponse:
+    session: Session = request.state.session
     if not session.get("logged_in"):
         raise HTTPException(status_code=401, detail="Unauthorized")
 

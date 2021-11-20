@@ -2,7 +2,7 @@ from json import loads
 
 from bcrypt import checkpw, gensalt, hashpw
 from donttrust import DontTrust, Schema, ValidationError
-from fastapi import Body, Depends, HTTPException
+from fastapi import Body, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -16,9 +16,7 @@ class LoginBody(BaseModel):
     password: str
 
 
-async def login_handler(
-    body: LoginBody = Body(...), session: Session = Depends()
-) -> JSONResponse:
+async def login_handler(request: Request, body: LoginBody = Body(...)) -> JSONResponse:
     try:
         schema = DontTrust(
             email=Schema().email().required(), password=Schema().string().required()
@@ -55,6 +53,7 @@ async def login_handler(
             data=dict(id=user.id, name=body.email.split("@")[0])  # type: ignore
         )
 
+    session: Session = request.state.session
     session.set("user_id", user.id)
     session.set("logged_in", True)
 
@@ -64,7 +63,7 @@ async def login_handler(
 
 
 async def register_handler(
-    body: LoginBody = Body(...), session: Session = Depends()
+    request: Request, body: LoginBody = Body(...)
 ) -> JSONResponse:
     try:
         schema = DontTrust(
@@ -90,6 +89,7 @@ async def register_handler(
         }
     )
 
+    session: Session = request.state.session
     session.set("user_id", user.id)
     session.set("logged_in", True)
 

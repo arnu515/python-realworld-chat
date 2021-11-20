@@ -1,36 +1,23 @@
-from os import getenv
-from typing import Optional
-
-from fastapi import Cookie, Header, Response
+from fastapi import Response
 from nanoid import generate
 
 from .store import SessionStore
 
 
 class Session(SessionStore):
-    def __init__(
-        self,
-        response: Response,
-        session_id: Optional[str] = Cookie(None),
-        x_session_id: Optional[str] = Header(None),
-    ):
-        sid = session_id or x_session_id or generate("1234567890abcdefwxyz", 21)
-        self.session_id = sid
-        super().__init__(sid)
-        response.set_cookie(
-            "session_id",
-            sid,
-            max_age=int(getenv("SESSION_EXPIRY", str(86400 * 7))),
-            httponly=True,
-        )
+    @staticmethod
+    def generate_sid():
+        return generate("qwertyuiopasdfghjklzxcvbnm1234567890", 32)
 
-    def reset_session(self, response: Response) -> None:
-        session_id = generate("1234567890abcdefwxyz", 21)
-        self.session_id = session_id
-        self.reset(session_id)
-        response.set_cookie(
-            "session_id",
-            session_id,
-            max_age=int(getenv("SESSION_EXPIRY", str(86400 * 7))),
-            httponly=True,
-        )
+    @staticmethod
+    def set_session_cookie(sid: str, response: Response) -> Response:
+        response.set_cookie("sid", sid, max_age=7 * 86400, httponly=True)
+        return response
+
+    def refresh_session(self, response: Response) -> Response:
+        """
+        Resets the session entirely by generating a new SID.
+        It is your duty to return the response returned by this method
+        """
+        self.reset(self.generate_sid())
+        return self.set_session_cookie(self.session_id, response)
