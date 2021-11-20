@@ -1,9 +1,8 @@
 <script lang="ts">
   import Header from "$lib/components/Header.svelte";
-  import { user } from "$lib/stores/user";
+  import { fetchUser, user } from "$lib/stores/user";
   import { onMount } from "svelte";
   import axios from "axios";
-  import type { AxiosError } from "axios";
   import "../app.css";
   import Auth from "$lib/components/Auth.svelte";
   import Sidebar from "$lib/components/Sidebar.svelte";
@@ -14,20 +13,7 @@
   let loading = true;
 
   onMount(() => {
-    axios
-      .get("/api/auth/me")
-      .then(({ data }) => {
-        $user = data.user;
-        loading = false;
-      })
-      .catch((e: AxiosError) => {
-        if (e.response.status === 401) {
-          $user = null;
-          loading = false;
-        } else {
-          throw e;
-        }
-      });
+    fetchUser().then(() => (loading = false));
   });
 </script>
 
