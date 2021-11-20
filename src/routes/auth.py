@@ -29,9 +29,7 @@ async def auth_callback(request: Request, session: Session = Depends()) -> Respo
 
     user = await Provider.get_user(code, payload, request)
 
-    profile = await db.profile.find_unique(
-        where={"id": user.id}, include={"user": True}
-    )
+    profile = await db.profile.find_unique(where={"id": user.id})
     if not profile:
         await db.profile.create(
             data=dict(id=user.id, name=user.email.split("@")[0])  # type: ignore
