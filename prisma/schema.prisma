@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-py"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  created_at    DateTime @default(now())
+  email         String   @unique @db.VarChar(255)
+  profile       Profile?
+  provider      String?  @db.VarChar(255)
+  provider_id   String?  @db.VarChar(255)
+  provider_data Json?    @db.Json
+}
+
+model Profile {
+  id         String   @id
+  created_at DateTime @default(now())
+  name       String   @db.VarChar(255)
+  avatar     String   @default("https://gravatar.com/avatar/placeholder?s=200&d=mp") @db.VarChar(255)
+  bio        String?
+  website    String?
+  user       User     @relation(fields: [id], references: [id])
+}
