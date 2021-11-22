@@ -95,7 +95,9 @@ class Provider(AuthProvider):
                 "email on your Github account",
             )
 
-        user = await db.user.find_unique(where={"email": primary_email.get("email")})
+        user = await db.user.find_unique(
+            where={"provider_id": str(user_data.get("id"))}
+        )
         if not user:
             user = await db.user.create(
                 data=dict(
@@ -104,6 +106,11 @@ class Provider(AuthProvider):
                     provider_id=str(user_data.get("id")),
                     provider_data=Json(user_data),
                 )
+            )
+        if user.email != primary_email.get("email"):
+            await db.user.update(
+                data=dict(email=primary_email.get("email")),
+                where={"id": user.id},
             )
         if user.provider != "github":
             raise HTTPException(
