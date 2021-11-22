@@ -3,10 +3,12 @@ from typing import Optional
 from urllib.parse import urlparse
 
 import requests
+from bcrypt import gensalt, hashpw
 from fastapi import APIRouter, Body, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from prisma import Json
 from src.lib.db import db
 from src.lib.session import Session
 
@@ -18,6 +20,12 @@ class SettingsProfileBody(BaseModel):
     avatar: Optional[str] = None
     bio: Optional[str] = None
     website: Optional[str] = None
+
+
+class SettingsAccountBody(BaseModel):
+    email: Optional[str] = None
+    password: Optional[str] = None
+    cpassword: Optional[str] = None
 
 
 @router.patch("/profile")
@@ -68,3 +76,48 @@ async def settings_profile(  # noqa: C901
         where={"id": profile.id},
     )
     return JSONResponse({"profile": loads(profile.json())})  # type: ignore
+
+
+@router.patch("/account")
+async def settings_account(  # noqa: C901
+    request: Request, body: SettingsAccountBody = Body(...)
+) -> JSONResponse:
+    session: Session = request.state.session
+    if not session.get("logged_in") or not session.get("user_id"):
+        raise HTTPException(401, "Unauthorized")
+
+    user = await db.user.find_unique(
+        where={"id": session.get("user_id")}  # type: ignore
+    )
+    if user is None:
+        session.delete("logged_in")
+        session.delete("user_id")
+        raise HTTPException(401, "Unauthorized")
+
+    if body.email:
+        user.email = body.email
+    if body.password and user.provider != "password":
+        raise HTTPException(
+            400,
+            "You can't change your password since "
+            + f'you\'ve registered with "{user.provider}"',
+        )
+    if body.password and body.password != body.cpassword:
+        raise HTTPException(400, "Passwords don't match")
+    if body.password:
+        user.provider_data = {
+            "password": hashpw(body.password.encode(), gensalt()).decode()
+        }
+
+    user = await db.user.update(
+        data={
+            "email": user.email,
+            "provider_data": Json(user.provider_data) if user.provider_data else None,
+        },
+        where={"id": user.id},
+    )
+
+    session.delete("logged_in")
+    session.delete("user_id")
+
+    return JSONResponse({"user": loads(user.json())})  # type: ignore
