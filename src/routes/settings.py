@@ -28,9 +28,13 @@ async def settings_profile(  # noqa: C901
     if not session.get("logged_in") or not session.get("user_id"):
         raise HTTPException(401, "Unauthorized")
 
-    profile = await db.profile.find_unique(where={"id": session.get("user_id")})
+    profile = await db.profile.find_unique(
+        where={"id": session.get("user_id")}  # type: ignore
+    )
     if profile is None:
-        return
+        session.delete("logged_in")
+        session.delete("user_id")
+        raise HTTPException(401, "Unauthorized")
 
     if body.name:
         profile.name = body.name
@@ -43,7 +47,7 @@ async def settings_profile(  # noqa: C901
             raise HTTPException(400, "Avatar URL can only be from imgur or gravatar")
         # Check if avatar_url outputs an image
         res = requests.get(avatar_url.geturl())
-        if not res.headers.get("content-type").startswith("image"):
+        if res.headers.get("content-type", "").startswith("image"):
             raise HTTPException(400, "The provided Avatar URL does not return an image")
         profile.avatar = body.avatar
     if body.bio:
@@ -63,4 +67,4 @@ async def settings_profile(  # noqa: C901
         },
         where={"id": profile.id},
     )
-    return JSONResponse({"profile": loads(profile.json())})
+    return JSONResponse({"profile": loads(profile.json())})  # type: ignore
