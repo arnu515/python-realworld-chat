@@ -5,6 +5,7 @@
   import { fetchUser, user } from "$lib/stores/user";
   import axios from "axios";
   import { onMount } from "svelte";
+  import "$lib/styles/settings-form.css";
 
   axios.defaults.withCredentials = true;
   axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL?.toString?.() || "/";
