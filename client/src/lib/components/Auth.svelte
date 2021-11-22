@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { parseFastAPIError } from "$lib/util";
+
   import axios from "axios";
   import joi from "joi";
 
@@ -32,7 +34,7 @@
       window.location.href = "/";
     } catch (e) {
       if (e.isAxiosError) {
-        alert(e.response.data.message);
+        alert(parseFastAPIError(e.response.data));
       } else {
         alert(e.message);
       }

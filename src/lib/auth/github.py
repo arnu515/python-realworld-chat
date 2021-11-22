@@ -95,7 +95,9 @@ class Provider(AuthProvider):
                 "email on your Github account",
             )
 
-        user = await db.user.find_unique(where={"email": primary_email.get("email")})
+        user = await db.user.find_unique(
+            where={"provider_id": str(user_data.get("id"))}
+        )
         if not user:
             user = await db.user.create(
                 data=dict(
@@ -111,6 +113,11 @@ class Provider(AuthProvider):
                 detail='You can\'t login with "github". Please use "'
                 + (user.provider or "email")
                 + '" instead.',
+            )
+        if user.email != primary_email.get("email"):
+            await db.user.update(
+                data=dict(email=primary_email.get("email")),
+                where={"id": user.id},
             )
 
         return user

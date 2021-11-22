@@ -1,6 +1,8 @@
 <header class="header">
-  <div class="brand">Realworld Chat</div>
-  <a href="https://github.com/arnu515/python-realworld-chat" class="source-code">Source</a>
+  <div class="brand"><a href="/">Realworld Chat</a></div>
+  <a href="https://github.com/arnu515/python-realworld-chat" class="source-code"
+    >Source</a
+  >
 </header>
 
 <style lang="postcss">

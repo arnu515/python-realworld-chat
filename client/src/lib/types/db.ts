@@ -2,7 +2,7 @@ export interface User {
   id: string;
   created_at: string;
   email: string;
-  provider?: "github";
+  provider?: "github" | "password";
   provider_id?: string;
   provider_data?: Record<string, unknown>;
   profile?: Profile;
