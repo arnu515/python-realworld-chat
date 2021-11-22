@@ -107,17 +107,17 @@ class Provider(AuthProvider):
                     provider_data=Json(user_data),
                 )
             )
-        if user.email != primary_email.get("email"):
-            await db.user.update(
-                data=dict(email=primary_email.get("email")),
-                where={"id": user.id},
-            )
         if user.provider != "github":
             raise HTTPException(
                 status_code=400,
                 detail='You can\'t login with "github". Please use "'
                 + (user.provider or "email")
                 + '" instead.',
+            )
+        if user.email != primary_email.get("email"):
+            await db.user.update(
+                data=dict(email=primary_email.get("email")),
+                where={"id": user.id},
             )
 
         return user
