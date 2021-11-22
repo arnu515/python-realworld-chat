@@ -31,7 +31,7 @@
     >
       {@html item.icon}
       <span
-        class="absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md bg-gray-300 text-black text-xs font-bold transition-all duration-100 scale-0 origin-left group-hover:scale-100"
+        class="absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md bg-blue-600 text-white text-xs font-bold transition-all duration-100 scale-0 origin-left group-hover:scale-100"
       >
         {item.tooltip}
       </span>
