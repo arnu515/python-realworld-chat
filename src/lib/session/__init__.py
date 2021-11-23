@@ -1,4 +1,6 @@
-from fastapi import Response
+from typing import Optional
+
+from fastapi import Cookie, HTTPException, Query, Response, WebSocket
 from nanoid import generate
 
 from .store import SessionStore
@@ -21,3 +23,13 @@ class Session(SessionStore):
         """
         self.reset(self.generate_sid())
         return self.set_session_cookie(self.session_id, response)
+
+
+async def ws_session(
+    ws: WebSocket, sid: Optional[str] = Cookie(None), x_sid: Optional[str] = Query(None)
+) -> Session:
+    session_id = sid or x_sid
+    if not session_id:
+        await ws.close(code=1000)
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return Session(session_id)

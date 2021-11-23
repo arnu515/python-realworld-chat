@@ -95,9 +95,7 @@ class Provider(AuthProvider):
                 "email on your Github account",
             )
 
-        user = await db.user.find_unique(
-            where={"provider_id": str(user_data.get("id"))}
-        )
+        user = await db.user.find_first(where={"provider_id": str(user_data.get("id"))})
         if not user:
             user = await db.user.create(
                 data=dict(
@@ -116,7 +114,7 @@ class Provider(AuthProvider):
             )
         if user.email != primary_email.get("email"):
             await db.user.update(
-                data=dict(email=primary_email.get("email")),
+                data=dict(email=primary_email.get("email")),  # type: ignore
                 where={"id": user.id},
             )
 
