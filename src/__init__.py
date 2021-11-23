@@ -1,12 +1,23 @@
+import os
 from typing import Callable
 
 from fastapi import Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.lib.db import db
 from src.lib.session import Session
 
 from .app import app  # noqa: F401
 from .routes import routes
+
+if bool(os.getenv("ENABLE_CORS")) or bool(os.getenv("DEBUG")):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+        allow_credentials=True,
+    )
 
 for router in routes:
     app.include_router(router)
