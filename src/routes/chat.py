@@ -74,12 +74,24 @@ async def create_chat_request(body: ChatRequestBody, request: Request) -> JSONRe
         user = await db.user.find_unique(where={"email": body.identifier.strip()})
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
+    if user.id == session.get("user_id"):
+        raise HTTPException(
+            status_code=400, detail="You can't send a request to yourself!"
+        )
 
     req = await db.chatrequest.find_first(
-        where={"from_user_id": session.get("user_id"), "to_user_id": user.id}
+        where={
+            "OR": [
+                {"from_user_id": session.get("user_id"), "to_user_id": user.id},
+                {"from_user_id": user.id, "to_user_id": session.get("user_id")},
+            ]
+        }
     )
     if req:
-        raise HTTPException(status_code=400, detail="You've already sent a request")
+        raise HTTPException(
+            status_code=400,
+            detail="You've already sent/received a request to/from that user",
+        )
 
     req = await db.chatrequest.create(
         data={  # type: ignore
