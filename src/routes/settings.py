@@ -105,12 +105,12 @@ async def settings_account(  # noqa: C901
     if body.password and body.password != body.cpassword:
         raise HTTPException(400, "Passwords don't match")
     if body.password:
-        user.provider_data = {
+        user.provider_data = {  # type: ignore
             "password": hashpw(body.password.encode(), gensalt()).decode()
         }
 
     user = await db.user.update(
-        data={
+        data={  # type: ignore
             "email": user.email,
             "provider_data": Json(user.provider_data) if user.provider_data else None,
         },

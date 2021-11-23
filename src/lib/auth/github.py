@@ -114,7 +114,7 @@ class Provider(AuthProvider):
             )
         if user.email != primary_email.get("email"):
             await db.user.update(
-                data=dict(email=primary_email.get("email")),
+                data=dict(email=primary_email.get("email")),  # type: ignore
                 where={"id": user.id},
             )
 

@@ -11,13 +11,15 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  created_at    DateTime @default(now())
-  email         String   @unique @db.VarChar(255)
-  profile       Profile?
-  provider      String?  @db.VarChar(255)
-  provider_id   String?  @db.VarChar(255)
-  provider_data Json?    @db.Json
+  id                     String        @id @default(cuid())
+  created_at             DateTime      @default(now())
+  email                  String        @unique @db.VarChar(255)
+  profile                Profile?
+  provider               String?       @db.VarChar(255)
+  provider_id            String?       @db.VarChar(255)
+  provider_data          Json?         @db.Json
+  sent_chat_requests     ChatRequest[] @relation("from_user")
+  received_chat_requests ChatRequest[] @relation("to_user")
 }
 
 model Profile {
@@ -28,4 +30,13 @@ model Profile {
   bio        String?
   website    String?
   user       User     @relation(fields: [id], references: [id])
+}
+
+model ChatRequest {
+  id           String  @id @default(uuid())
+  from_user_id String  @unique
+  to_user_id   String  @unique
+  from_user    User    @relation(name: "from_user", fields: [from_user_id], references: [id])
+  to_user      User    @relation(name: "to_user", fields: [to_user_id], references: [id])
+  accepted     Boolean @default(false)
 }
